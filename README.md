@@ -78,38 +78,13 @@ As regras em `firestore.rules` restringem leitura e escrita ao proprio usuario a
 
 ## Deploy
 
-Veja o passo a passo em `docs/DEPLOY_VERCEL.md`.
-
 Link da aplicacao em producao:
 
 ```text
-Adicionar a URL publica depois do deploy.
+https://caloria-o2pl77bef-pedrohenriqueandradesantanas-projects.vercel.app/login
 ```
 
-## Screenshots das Telas Principais
 
-Adicionar imagens das telas abaixo antes da entrega final no GitHub:
-
-- Login
-- Dashboard
-- Refeicoes
-- Jejum
-- Resumo semanal
-- Configuracoes
-
-## Video Demonstrativo
-
-Gravar um video de 3 a 5 minutos mostrando:
-
-- Cadastro ou login.
-- Cadastro, edicao e exclusao de refeicao.
-- Alteracao da meta diaria.
-- Inicio e encerramento de jejum.
-- Historico e resumo semanal.
-
-## Checklist dos Requisitos
-
-Veja a conferencia completa em `docs/REQUISITOS_PDF.md`.
 
 ## Aviso
 
