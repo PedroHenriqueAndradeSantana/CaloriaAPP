@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsExisting() {
+      return signedIn() && request.auth.uid == resource.data.userId;
+    }
+
+    function ownsNew() {
+      return signedIn() && request.auth.uid == request.resource.data.userId;
+    }
+
+    function validIsoText(value) {
+      return value is string && value.size() >= 20;
+    }
+
+    function validMeal(data) {
+      return data.keys().hasOnly(["userId", "description", "calories", "mealType", "eatenAt", "createdAt"]) &&
+        data.description is string &&
+        data.description.size() >= 2 &&
+        data.description.size() <= 80 &&
+        data.calories is int &&
+        data.calories >= 1 &&
+        data.calories <= 20000 &&
+        data.mealType in ["cafe", "almoco", "lanche", "jantar", "ceia"] &&
+        validIsoText(data.eatenAt) &&
+        validIsoText(data.createdAt);
+    }
+
+    function validProfile(data) {
+      return data.keys().hasOnly(["userId", "dailyGoal", "updatedAt"]) &&
+        data.dailyGoal is int &&
+        data.dailyGoal >= 500 &&
+        data.dailyGoal <= 10000 &&
+        validIsoText(data.updatedAt);
+    }
+
+    function validFast(data) {
+      return data.keys().hasOnly(["userId", "fastType", "plannedHours", "startedAt", "endedAt", "createdAt"]) &&
+        data.fastType in ["16:8", "18:6", "20:4", "24h", "custom"] &&
+        data.plannedHours is number &&
+        data.plannedHours >= 1 &&
+        data.plannedHours <= 72 &&
+        validIsoText(data.startedAt) &&
+        (data.endedAt == null || validIsoText(data.endedAt)) &&
+        validIsoText(data.createdAt);
+    }
+
+    // Secao: perfil do usuario autenticado.
+    match /profiles/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create, update: if signedIn() &&
+        request.auth.uid == userId &&
+        request.resource.data.userId == userId &&
+        validProfile(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Secao: registros de refeicoes do proprio usuario.
+    match /meals/{mealId} {
+      allow read: if ownsExisting();
+      allow create: if ownsNew() && validMeal(request.resource.data);
+      allow update: if ownsExisting() &&
+        ownsNew() &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        validMeal(request.resource.data);
+      allow delete: if ownsExisting();
+    }
+
+    // Secao: ciclos de jejum do proprio usuario.
+    match /fasts/{fastId} {
+      allow read: if ownsExisting();
+      allow create: if ownsNew() && validFast(request.resource.data);
+      allow update: if ownsExisting() &&
+        ownsNew() &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.startedAt == resource.data.startedAt &&
+        validFast(request.resource.data);
+      allow delete: if false;
+    }
+  }
+}
