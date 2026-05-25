@@ -81,6 +81,7 @@ As regras em `firestore.rules` restringem leitura e escrita ao proprio usuario a
 Link da aplicacao em producao:
 
 ```text
+https://youtu.be/FKGy2wOyX2k
 https://caloria-o2pl77bef-pedrohenriqueandradesantanas-projects.vercel.app/login
 ```
 
